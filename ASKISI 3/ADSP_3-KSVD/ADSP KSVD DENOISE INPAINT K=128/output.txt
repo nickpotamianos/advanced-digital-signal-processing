@@ -1,0 +1,62 @@
+Loaded pre-trained dictionary with 128 atoms.
+Found 7 test images.
+Running denoising experiment...
+Image 1 (cat_known.jpg), SNR=0dB: MSE=0.006720, PSNR=21.73dB
+Image 1 (cat_known.jpg), SNR=20dB: MSE=0.000408, PSNR=33.89dB
+Image 1 (cat_known.jpg), SNR=50dB: MSE=0.000325, PSNR=34.88dB
+Image 1 (cat_known.jpg), SNR=100dB: MSE=0.000325, PSNR=34.89dB
+Image 2 (cat_unknown.jpg), SNR=0dB: MSE=0.022414, PSNR=16.49dB
+Image 2 (cat_unknown.jpg), SNR=20dB: MSE=0.001073, PSNR=29.69dB
+Image 2 (cat_unknown.jpg), SNR=50dB: MSE=0.000816, PSNR=30.88dB
+Image 2 (cat_unknown.jpg), SNR=100dB: MSE=0.000816, PSNR=30.88dB
+Image 3 (field.jpg), SNR=0dB: MSE=0.063569, PSNR=11.97dB
+Image 3 (field.jpg), SNR=20dB: MSE=0.003962, PSNR=24.02dB
+Image 3 (field.jpg), SNR=50dB: MSE=0.003224, PSNR=24.92dB
+Image 3 (field.jpg), SNR=100dB: MSE=0.003223, PSNR=24.92dB
+Image 4 (floathouse.jpg), SNR=0dB: MSE=0.042007, PSNR=13.77dB
+Image 4 (floathouse.jpg), SNR=20dB: MSE=0.001539, PSNR=28.13dB
+Image 4 (floathouse.jpg), SNR=50dB: MSE=0.001085, PSNR=29.64dB
+Image 4 (floathouse.jpg), SNR=100dB: MSE=0.001085, PSNR=29.65dB
+Image 5 (keanu.jpg), SNR=0dB: MSE=0.006482, PSNR=21.88dB
+Image 5 (keanu.jpg), SNR=20dB: MSE=0.000443, PSNR=33.53dB
+Image 5 (keanu.jpg), SNR=50dB: MSE=0.000379, PSNR=34.22dB
+Image 5 (keanu.jpg), SNR=100dB: MSE=0.000379, PSNR=34.22dB
+Image 6 (parrot.jpg), SNR=0dB: MSE=0.028876, PSNR=15.39dB
+Image 6 (parrot.jpg), SNR=20dB: MSE=0.000483, PSNR=33.16dB
+Image 6 (parrot.jpg), SNR=50dB: MSE=0.000137, PSNR=38.63dB
+Image 6 (parrot.jpg), SNR=100dB: MSE=0.000137, PSNR=38.65dB
+Image 7 (woman.jpg), SNR=0dB: MSE=0.058311, PSNR=12.34dB
+Image 7 (woman.jpg), SNR=20dB: MSE=0.000915, PSNR=30.38dB
+Image 7 (woman.jpg), SNR=50dB: MSE=0.000191, PSNR=37.19dB
+Image 7 (woman.jpg), SNR=100dB: MSE=0.000190, PSNR=37.20dB
+
+Running inpainting experiment...
+Image 1 (cat_known.jpg), Missing=90%: MSE=0.026240, PSNR=15.81dB
+Image 1 (cat_known.jpg), Missing=50%: MSE=0.010751, PSNR=19.69dB
+Image 1 (cat_known.jpg), Missing=20%: MSE=0.003229, PSNR=24.91dB
+Image 1 (cat_known.jpg), Missing=10%: MSE=0.001522, PSNR=28.18dB
+Image 2 (cat_unknown.jpg), Missing=90%: MSE=0.071658, PSNR=11.45dB
+Image 2 (cat_unknown.jpg), Missing=50%: MSE=0.029528, PSNR=15.30dB
+Image 2 (cat_unknown.jpg), Missing=20%: MSE=0.008918, PSNR=20.50dB
+Image 2 (cat_unknown.jpg), Missing=10%: MSE=0.004243, PSNR=23.72dB
+Image 3 (field.jpg), Missing=90%: MSE=0.203494, PSNR=6.91dB
+Image 3 (field.jpg), Missing=50%: MSE=0.083790, PSNR=10.77dB
+Image 3 (field.jpg), Missing=20%: MSE=0.026046, PSNR=15.84dB
+Image 3 (field.jpg), Missing=10%: MSE=0.012930, PSNR=18.88dB
+Image 4 (floathouse.jpg), Missing=90%: MSE=0.126504, PSNR=8.98dB
+Image 4 (floathouse.jpg), Missing=50%: MSE=0.051398, PSNR=12.89dB
+Image 4 (floathouse.jpg), Missing=20%: MSE=0.015356, PSNR=18.14dB
+Image 4 (floathouse.jpg), Missing=10%: MSE=0.007032, PSNR=21.53dB
+Image 5 (keanu.jpg), Missing=90%: MSE=0.026070, PSNR=15.84dB
+Image 5 (keanu.jpg), Missing=50%: MSE=0.010722, PSNR=19.70dB
+Image 5 (keanu.jpg), Missing=20%: MSE=0.003363, PSNR=24.73dB
+Image 5 (keanu.jpg), Missing=10%: MSE=0.001635, PSNR=27.87dB
+Image 6 (parrot.jpg), Missing=90%: MSE=0.108225, PSNR=9.66dB
+Image 6 (parrot.jpg), Missing=50%: MSE=0.043791, PSNR=13.59dB
+Image 6 (parrot.jpg), Missing=20%: MSE=0.012348, PSNR=19.08dB
+Image 6 (parrot.jpg), Missing=10%: MSE=0.005195, PSNR=22.84dB
+Image 7 (woman.jpg), Missing=90%: MSE=0.193609, PSNR=7.13dB
+Image 7 (woman.jpg), Missing=50%: MSE=0.078517, PSNR=11.05dB
+Image 7 (woman.jpg), Missing=20%: MSE=0.022245, PSNR=16.53dB
+Image 7 (woman.jpg), Missing=10%: MSE=0.009426, PSNR=20.26dB
+Experiments completed and results saved.

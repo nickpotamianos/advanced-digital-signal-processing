@@ -1,0 +1,34 @@
+Found 15 training and 7 test images.
+Extracting 8x8 blocks from training set...
+Starting parallel pool (parpool) using the 'Processes' profile ...
+Connected to parallel pool with 4 workers.
+Epoch 1/20 – MSE: 2.7039e-01
+Epoch 2/20 – MSE: 1.0593e-01
+Epoch 3/20 – MSE: 8.7781e-02
+Epoch 4/20 – MSE: 6.5181e-02
+Epoch 5/20 – MSE: 6.9615e-02
+Epoch 6/20 – MSE: 5.6766e-02
+Epoch 7/20 – MSE: 5.0973e-02
+Epoch 8/20 – MSE: 4.8948e-02
+Epoch 9/20 – MSE: 4.6451e-02
+Epoch 10/20 – MSE: 4.4977e-02
+Epoch 11/20 – MSE: 4.3551e-02
+Epoch 12/20 – MSE: 4.1728e-02
+Epoch 13/20 – MSE: 4.0550e-02
+Epoch 14/20 – MSE: 3.9577e-02
+Epoch 15/20 – MSE: 3.8660e-02
+Epoch 16/20 – MSE: 3.7932e-02
+Epoch 17/20 – MSE: 3.7404e-02
+Epoch 18/20 – MSE: 3.6849e-02
+Epoch 19/20 – MSE: 3.6318e-02
+Epoch 20/20 – MSE: 3.5983e-02
+Reconstructing test images...
+
+Test‑set summary over 7 images:
+  Average PSNR : 31.57 dB (std 4.18)
+  Average MSE  : 1.0755e-03
+  Mean sparsity: 7.26 coefficients per block
+Saved D.mat, Xtrain.mat, Xtest.mat, Ytrain.mat, and stats.
+IdleTimeout has been reached.
+Parallel pool using the 'Processes' profile is shutting down.
+>> 

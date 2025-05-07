@@ -16,10 +16,10 @@ clear; close all; clc;
 
 %% ------------------ PARAMETERS ----------------------------------------
 blockSize = 8;        % patch dimension (pixels)
-K         = 128;      % dictionary atoms (K ≥ blockSize^2)
+K         = 512;      % dictionary atoms (K ≥ blockSize^2)
 T0        = 5;        % sparsity per block (try 5‑10)
 epsilon   = 0;        % residual threshold (0 ➜ off)
-noEpochs  = 20;       % dictionary learning epochs
+noEpochs  = 100;       % dictionary learning epochs
 gOMP_N    = 1;        % =1 → OMP, >1 → GenOMP batch size
 maxViz    = 7;        % how many test images to show/save
 rng('default');       % reproducibility seed

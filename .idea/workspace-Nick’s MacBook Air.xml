@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="c356466b-8326-40b3-95c8-798ff9ad0c96" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/ksvd.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/ΕΦΑΡΜΟΓΕΣ ΨΗΦΙΑΚΗΣ ΕΠΕΞΕΡΓΑΣΙΑΣ ΣΗΜΑΤΩΝ.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ΕΦΑΡΜΟΓΕΣ ΨΗΦΙΑΚΗΣ ΕΠΕΞΕΡΓΑΣΙΑΣ ΣΗΜΑΤΩΝ.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 1/1_7/Askisi1_7.m" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 1/1_7/Askisi1_7.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 1/1_8/Askisi1_8.m" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 1/1_8/Askisi1_8.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 1/Askisi1_5.m" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 1/Askisi1_5.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 1/Askisi1_6.m" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 1/Askisi1_6.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 1/report (2).pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 1/report (3).pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 2/ADSP_2-Low_Rank_Modeling_Eigenfilters/ex2_2_2.m" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 2/ADSP_2-Low_Rank_Modeling_Eigenfilters/ex2_2_2.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 2/ADSP_2-Low_Rank_Modeling_Eigenfilters/ex2_2_3.m" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 2/ADSP_2-Low_Rank_Modeling_Eigenfilters/ex2_2_3.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 2/ADSP_2-Low_Rank_Modeling_Eigenfilters/ex2_2_4.m" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 2/ADSP_2-Low_Rank_Modeling_Eigenfilters/ex2_2_4.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 2/ADSP_2-Low_Rank_Modeling_Eigenfilters/ex2_2_6.m" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 2/ADSP_2-Low_Rank_Modeling_Eigenfilters/ex2_2_6.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/DictionaryLearning.m" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/DictionaryLearning.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/GenOMP.m" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/GenOMP.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/KSVD.m" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/KSVD.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/backup/DictionaryLearning.m" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/backup/DictionaryLearning.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/backup/GenOMP.m" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/backup/GenOMP.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/backup/KSVD.m" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/backup/KSVD.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/dataset/test/Thumbs.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/dataset/train/Thumbs.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/dispD.m" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/dispD.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/normalizeDictionary.m" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/normalizeDictionary.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/plots - o3/console.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/plots - o3/console.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/test_recon_01.png" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/test_recon_01.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/test_recon_02.png" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/test_recon_02.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/test_recon_03.png" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD/test_recon_03.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/CCA_+_1-NN_confusion.png" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/CCA_+_1-NN_confusion.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/Centroid_confusion.png" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/Centroid_confusion.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/LDA_+_1-NN_confusion.png" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/LDA_+_1-NN_confusion.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/PCA_+_1-NN_confusion.png" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/PCA_+_1-NN_confusion.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/accuracy_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/accuracy_comparison.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/canonical_variate.png" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/canonical_variate.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/centroids.png" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/centroids.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/eigenfaces.png" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/eigenfaces.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/fisherface.png" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/fisherface.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/histogram_LDA_Features.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/kde_CCA_Features.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/kde_LDA_Features.png" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/kde_LDA_Features.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/results_summary.json" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/results_summary.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/roc_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/roc_comparison.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/tsne_Original_Features.png" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/tsne_Original_Features.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/tsne_PCA_Features.png" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/classification_results/tsne_PCA_Features.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/face_classification.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/face_classification.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/face_classification.py" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/face_classification.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/gender_map.json" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/gender_map.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/make_splits.py" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/make_splits.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/pipeline.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/report template.docx" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/report template.docx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/splits.json" beforeDir="false" afterPath="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA/splits.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Jupyter Notebook" />
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;nickpotamianos&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/nickpotamianos/advanced-digital-signal-processing.git",
+    "accountId": "4bf34504-1d35-4f9b-8f5e-d8a31437a6d1"
+  }
+}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="2wXwzWLnsgUXKPEgq5JjctDN8Ge" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.face_classification.executor": "Run",
+    "Python.ksvd.executor": "Run",
+    "Python.make_splits.executor": "Run",
+    "Python.pipeline.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/Users/nickpotamianos/Library/CloudStorage/OneDrive-UniversityofPatras/CEID/10ο Εξάμηνο/ΕΦΑΡΜΟΓΕΣ ΨΗΦΙΑΚΗΣ ΕΠΕΞΕΡΓΑΣΙΑΣ ΣΗΜΑΤΩΝ",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-PY-243.25659.43" />
+        <option value="bundled-python-sdk-181015f7ab06-4df51de95216-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-243.25659.43" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c356466b-8326-40b3-95c8-798ff9ad0c96" name="Changes" comment="" />
+      <created>1746201489239</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1746201489239</updated>
+      <workItem from="1746201490672" duration="3784000" />
+      <workItem from="1746378543894" duration="5032000" />
+      <workItem from="1746394694525" duration="713000" />
+      <workItem from="1746397798959" duration="1979000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/pipeline_ipynb$pipeline.coverage" NAME="pipeline Coverage Results" MODIFIED="1746382269372" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA" />
+    <SUITE FILE_PATH="coverage/pipeline_ipynb$face_classification.coverage" NAME="face_classification Coverage Results" MODIFIED="1746394795053" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA" />
+    <SUITE FILE_PATH="coverage/pipeline_ipynb$ksvd.coverage" NAME="ksvd Coverage Results" MODIFIED="1746399210662" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ASKISI 3/ADSP_3-KSVD" />
+    <SUITE FILE_PATH="coverage/___$make_splits.coverage" NAME="make_splits Coverage Results" MODIFIED="1746201540559" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ASKISI 4/ADSP_4-LDA" />
+  </component>
+</project>

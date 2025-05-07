@@ -270,24 +270,37 @@ class FaceClassifier:
         """
         print(f"\n{'='*50}\nRunning CCA with {n_components} components...")
 
-        # Apply CCA
-        self.cca = CCA(n_components=n_components)
+        # Apply CCA with regularization
+        self.cca = CCA(n_components=n_components, scale=True)
         self.U_train, _ = self.cca.fit_transform(self.X_train_centered, self.y_train_enc)
         self.U_test, _ = self.cca.transform(self.X_test_centered, self.y_test_enc)
-
-        # Train and predict with 1-NN
-        self.knn_cca = KNeighborsClassifier(n_neighbors=1).fit(self.U_train, self.y_train)
-        self.pred_cca = self.knn_cca.predict(self.U_test)
-
+    
+        # Normalize CCA projections to prevent extreme values
+        # Get min/max for scaling from training data
+        u_min = np.min(self.U_train)
+        u_max = np.max(self.U_train)
+    
+        # Apply scaling to both train and test data to range [-1, 1]
+        if u_max > u_min:  # Avoid division by zero
+            self.U_train_normalized = 2 * (self.U_train - u_min) / (u_max - u_min) - 1
+            self.U_test_normalized = 2 * (self.U_test - u_min) / (u_max - u_min) - 1
+        else:
+            self.U_train_normalized = self.U_train
+            self.U_test_normalized = self.U_test
+    
+        # Use normalized projections for classification
+        self.knn_cca = KNeighborsClassifier(n_neighbors=1).fit(self.U_train_normalized, self.y_train)
+        self.pred_cca = self.knn_cca.predict(self.U_test_normalized)
+    
         # Calculate probability estimates for ROC curve
-        proba = self.knn_cca.predict_proba(self.U_test)
-
+        proba = self.knn_cca.predict_proba(self.U_test_normalized)
+    
         # Evaluate and store results
         self._evaluate_method("CCA + 1-NN", self.pred_cca, proba)
-
+    
         # Visualize canonical variate
         self._visualize_canonical_variate()
-
+    
         return self.pred_cca
 
     def _evaluate_method(self, method_name, predictions, probabilities=None):
@@ -470,10 +483,10 @@ class FaceClassifier:
             X = np.vstack([self.L_train, self.L_test])
             title = "LDA Features"
             is_1d = X.shape[1] == 1  # Check if LDA produced 1D data
-        elif method == "cca" and hasattr(self, 'U_train') and hasattr(self, 'U_test'):
-            X = np.vstack([self.U_train, self.U_test])
-            title = "CCA Features"
-            is_1d = X.shape[1] == 1  # Check if CCA produced 1D data
+        elif method == "cca" and hasattr(self, 'U_train_normalized') and hasattr(self, 'U_test_normalized'):
+            X = np.vstack([self.U_train_normalized, self.U_test_normalized])
+            title = "CCA Features (Normalized)"
+            is_1d = X.shape[1] == 1
         else:
             # Use original centered data
             X = np.vstack([self.X_train_centered, self.X_test_centered])
