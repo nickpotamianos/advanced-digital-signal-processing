@@ -1,0 +1,34 @@
+# Ignore all MATLAB .fig files (usually large)
+*.fig
+
+# Ignore .mat files (can be large)
+*.mat
+
+# Ignore large data files
+*.npz
+
+# Ignore specific large directories
+ASKISI*/*/ADSP*KSVD*DENOISE*INPAINT*/
+
+# Ignore MATLAB plots and data folders
+*/[MATLAB]*/*
+*/[PYTHON]*/*
+
+# Specifically ignore known large files
+ASKISI 3/ADSP_3-KSVD/[PYTHON] plots epochs=20 - T0=5 - K=128/Xtrain.npz
+ASKISI 3/ADSP_3-KSVD/[PYTHON] plots epochs=20 - T0=5 - K=128/Ytrain.npz
+
+# Ignore backup folders
+*/backup/
+
+# Ignore PDF files
+*.pdf
+
+# Ignore MATLAB temporary files
+*.asv
+*.m~
+*.mex*
+
+# Ignore common OS files
+.DS_Store
+Thumbs.db
