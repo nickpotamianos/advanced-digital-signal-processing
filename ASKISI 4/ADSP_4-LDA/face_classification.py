@@ -1,812 +1,530 @@
-"""
-Face Classification and Recognition using Dimension Reduction Techniques
-Implements PCA (Eigenfaces), LDA (Fisherfaces), Centroid, and CCA approaches
-for gender classification of face images.
-
-Based on: "Applications of Digital Signal Processing - Face Categorization & Recognition"
-University of Patras, Department of Computer Engineering & Informatics
-"""
-
 import os
 import json
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 from PIL import Image
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.cross_decomposition import CCA
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.metrics import (
-    accuracy_score,
-    classification_report,
-    confusion_matrix,
-    ConfusionMatrixDisplay,
-    roc_curve,
-    auc
-)
-from sklearn.model_selection import KFold, cross_val_score
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import (accuracy_score, classification_report, confusion_matrix,
+                             ConfusionMatrixDisplay)
 from sklearn.manifold import TSNE
+from sklearn.cluster import KMeans
+from sklearn.model_selection import learning_curve, StratifiedKFold
+from sklearn.pipeline import Pipeline
+from mpl_toolkits.mplot3d import Axes3D
 import seaborn as sns
-import warnings
+from tqdm import tqdm
+import re
 
-# Create results directory for outputs
-RESULTS_DIR = "classification_results"
-os.makedirs(RESULTS_DIR, exist_ok=True)
+# Set plot style for academic presentation
+plt.style.use('seaborn-v0_8-whitegrid')
+sns.set_context("paper", font_scale=1.2)
 
-class FaceClassifier:
-    """
-    Main class for face classification experiments using various
-    dimension reduction techniques as described in the course material.
-    """
+# Debug: confirm working directory and files
+print("Working directory:", os.getcwd())
+print("Directory contents:", os.listdir())
 
-    def __init__(self, splits_file="splits.json"):
-        """
-        Initialize the classifier with dataset splits
+# Load existing splits.json
+with open("splits.json", "r") as f:
+    gender_splits = json.load(f)
 
-        Parameters:
-        -----------
-        splits_file: str
-            Path to the JSON file containing dataset splits
-        """
-        print("Initializing face classifier...")
-        print(f"Working directory: {os.getcwd()}")
-        print(f"Directory contents: {os.listdir()}")
 
-        # Load dataset splits
-        with open(splits_file, "r") as f:
-            self.splits = json.load(f)
+# Function to extract person ID from path using regex
+def extract_person_id(path):
+    match = re.search(r'faces_dataset\\s(\d+)\\', path)
+    if match:
+        return f"person_{match.group(1)}"
+    return None
 
-        # Load and preprocess data
-        self.X_train, self.y_train = self._load_set("train")
-        self.X_test, self.y_test = self._load_set("test")
 
-        # Encode labels
-        self.le = LabelEncoder().fit(self.y_train)
-        self.y_train_enc = self.le.transform(self.y_train).reshape(-1, 1)
-        self.y_test_enc = self.le.transform(self.y_test).reshape(-1, 1)
+def create_person_splits(gender_splits):
+    person_splits = {"train": [], "test": []}
 
-        # Center data
-        self.mean_face = self.X_train.mean(axis=0)
-        self.X_train_centered = self.X_train - self.mean_face
-        self.X_test_centered = self.X_test - self.mean_face
+    # Group all images by person ID
+    persons_data = {}
 
-        # Calculate image dimensions from the first image
-        first_img = Image.open(self.splits["train"][0]["path"])
-        self.img_width, self.img_height = first_img.size
+    # Collect all images grouped by person
+    for item in gender_splits["train"] + gender_splits["test"]:
+        match = re.search(r'faces_dataset\\s(\d+)\\', item["path"])
+        if match:
+            person_id = f"person_{match.group(1)}"
 
-        # Dictionary to store classification results
-        self.results = {}
+            # Initialize entry for this person if not seen before
+            if person_id not in persons_data:
+                persons_data[person_id] = []
 
-        print(f"Data loaded: {self.X_train.shape[0]} training samples, {self.X_test.shape[0]} test samples")
-        print(f"Classes: {list(self.le.classes_)}")
-        print(f"Image dimensions: {self.img_width}x{self.img_height}")
+            # Get directory part
+            dir_part = item["path"].rsplit('\\', 1)[0]
 
-    def _load_set(self, key):
-        """
-        Load and prepare dataset (train or test)
+            # Add sequential images for this person
+            current_index = len(persons_data[person_id]) + 1
+            new_path = f"{dir_part}\\{current_index}.pgm"
 
-        Parameters:
-        -----------
-        key: str
-            Either "train" or "test"
+            persons_data[person_id].append({
+                "path": new_path,
+                "label": person_id
+            })
 
-        Returns:
-        --------
-        X: numpy.ndarray
-            Image data matrix (n_samples x n_features)
-        y: numpy.ndarray
-            Class labels
-        """
-        X, y = [], []
-        for e in self.splits[key]:
+    # Now randomly split each person's images into train/test with 70/30 ratio
+    np.random.seed(42)  # For reproducibility
+
+    for person_id, images in persons_data.items():
+        # Shuffle the images
+        np.random.shuffle(images)
+
+        # Calculate split point (70% train, 30% test)
+        split_idx = int(0.7 * len(images))
+
+        # Split into train and test
+        train_images = images[:split_idx]
+        test_images = images[split_idx:]
+
+        # Add to the final splits
+        person_splits["train"].extend(train_images)
+        person_splits["test"].extend(test_images)
+
+    print(f"Created splits: {len(person_splits['train'])} training images, {len(person_splits['test'])} test images")
+    return person_splits
+
+# Create person splits
+person_splits = create_person_splits(gender_splits)
+
+# Save the person_splits to a JSON file
+with open("person_splits.json", "w") as f:
+    json.dump(person_splits, f, indent=2)
+
+print("Successfully created and saved person_splits.json")
+
+# Save the person_splits to a JSON file
+with open("person_splits.json", "w") as f:
+    json.dump(person_splits, f, indent=2)
+
+print("Successfully created and saved person_splits.json")
+
+# Create person splits
+person_splits = create_person_splits(gender_splits)
+
+
+# Load & center data
+def load_set(key, splits_data):
+    X, y = [], []
+    for e in splits_data[key]:
+        try:
             img = np.array(Image.open(e["path"]), dtype=float).flatten()
             X.append(img)
             y.append(e["label"])
-        return np.vstack(X), np.array(y)
+        except FileNotFoundError:
+            print(f"Warning: File not found: {e['path']}")
+    return np.vstack(X), np.array(y)
 
-    def apply_pca(self, n_components=20, optimize=False):
-        """
-        Apply PCA dimension reduction (Eigenfaces) and 1-NN classification
 
-        Parameters:
-        -----------
-        n_components: int
-            Number of principal components to use
-        optimize: bool
-            Whether to optimize the number of components using cross-validation
+X_train, y_train = load_set("train", person_splits)
+X_test, y_test = load_set("test", person_splits)
 
-        Returns:
-        --------
-        pred: numpy.ndarray
-            Predicted labels for the test set
-        """
-        print(f"\n{'='*50}\nRunning PCA (Eigenfaces) with {n_components} components...")
+# Get original image dimensions
+first_img = Image.open(person_splits["train"][0]["path"])
+width, height = first_img.size
 
-        if optimize:
-            # Find optimal number of components using cross-validation
-            components_range = range(5, min(50, self.X_train.shape[0]), 5)
-            pca_scores = []
+# Compute mean face and center data
+mean_face = X_train.mean(axis=0)
+X_train_centered = X_train - mean_face
+X_test_centered = X_test - mean_face
 
-            for n_comp in components_range:
-                pca = PCA(n_components=n_comp, svd_solver="randomized", whiten=True)
-                Z_train = pca.fit_transform(self.X_train_centered)
+# Encode labels for multi-class classification
+le = LabelEncoder().fit(y_train)
+y_train_enc = le.transform(y_train)
+y_test_enc = le.transform(y_test)
 
-                knn = KNeighborsClassifier(n_neighbors=1)
-                cv = KFold(n_splits=5, shuffle=True, random_state=42)
-                scores = cross_val_score(knn, Z_train, self.y_train, cv=cv)
+# Create results directory if it doesn't exist
+results_dir = "person_recognition_results"
+os.makedirs(results_dir, exist_ok=True)
 
-                pca_scores.append((n_comp, scores.mean(), scores.std()))
-                print(f"  Components: {n_comp}, CV Accuracy: {scores.mean():.4f} ± {scores.std():.4f}")
+# Output information about the dataset
+n_classes = len(np.unique(y_train_enc))
+print(f"Number of persons: {n_classes}")
+print(f"Training samples: {len(X_train)}")
+print(f"Test samples: {len(X_test)}")
 
-            # Use optimal number of components
-            n_components = max(pca_scores, key=lambda x: x[1])[0]
-            print(f"Optimal number of PCA components: {n_components}")
+# 5) PCA Analysis and Visualization for Person Recognition
+print("\n=== PCA Analysis for Person Recognition ===")
+n_components_full = min(X_train.shape[0], X_train.shape[1])
+pca_full = PCA(n_components=n_components_full)
+pca_full.fit(X_train_centered)
 
-        # Apply PCA with the selected number of components
-        self.pca = PCA(n_components=n_components, svd_solver="randomized", whiten=True)
-        self.Z_train = self.pca.fit_transform(self.X_train_centered)
-        self.Z_test = self.pca.transform(self.X_test_centered)
+# 5.1) Eigenvalue Spectrum Visualization
+plt.figure(figsize=(10, 6))
+explained_var = pca_full.explained_variance_ratio_
+cumulative_var = np.cumsum(explained_var)
+plt.plot(range(1, len(explained_var) + 1), cumulative_var, 'o-', markersize=8)
+plt.axhline(y=0.95, color='r', linestyle='--', label='95% Explained Variance')
+plt.axhline(y=0.99, color='g', linestyle='--', label='99% Explained Variance')
+components_95 = np.where(cumulative_var >= 0.95)[0][0] + 1
+components_99 = np.where(cumulative_var >= 0.99)[0][0] + 1
+plt.axvline(x=components_95, color='r', linestyle='--')
+plt.axvline(x=components_99, color='g', linestyle='--')
+plt.xlabel('Number of Principal Components')
+plt.ylabel('Cumulative Explained Variance Ratio')
+plt.title('PCA Eigenvalue Spectrum Analysis for Person Recognition')
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.savefig(f"{results_dir}/pca_eigenvalue_spectrum.png", dpi=300)
+plt.close()
 
-        # Train and predict with 1-NN
-        self.knn_pca = KNeighborsClassifier(n_neighbors=1).fit(self.Z_train, self.y_train)
-        self.pred_pca = self.knn_pca.predict(self.Z_test)
+print(f"Components needed for 95% variance: {components_95}")
+print(f"Components needed for 99% variance: {components_99}")
 
-        # Calculate probability estimates for ROC curve (distance-based)
-        proba = self.knn_pca.predict_proba(self.Z_test)
+# 5.2) Top Eigenfaces visualization
+n_eigenfaces = min(20, len(explained_var))
+pca = PCA(n_components=n_eigenfaces, svd_solver="randomized", whiten=True)
+Z_train = pca.fit_transform(X_train_centered)
+Z_test = pca.transform(X_test_centered)
 
-        # Evaluate and store results
-        self._evaluate_method("PCA + 1-NN", self.pred_pca, proba)
+# Eigenfaces grid
+eigs = pca.components_.reshape((n_eigenfaces, height, width))
+fig, axes = plt.subplots(4, 5, figsize=(15, 12))
+for i, ax in enumerate(axes.flat):
+    if i < n_eigenfaces:
+        ax.imshow(eigs[i], cmap="viridis")
+        ax.set_title(f"Eigenface {i + 1}\nVar: {pca.explained_variance_ratio_[i]:.3f}")
+        ax.axis("off")
+    else:
+        ax.axis("off")
+plt.suptitle("PCA: Top 20 Eigenfaces with Explained Variance", fontsize=16)
+plt.tight_layout()
+plt.savefig(f"{results_dir}/eigenfaces_grid.png", dpi=300)
+plt.close()
 
-        # Visualize eigenfaces
-        self._visualize_eigenfaces(n_components)
+# 5.3) Face reconstruction with increasing eigenfaces
+n_reconstructions = 5  # Number of faces to reconstruct
+reconstruction_steps = [1, 5, 10, 20, 50, 100]  # Number of eigenfaces to use
 
-        return self.pred_pca
+# Get some test faces
+test_faces_indices = np.random.choice(len(X_test), n_reconstructions, replace=False)
+test_faces = X_test_centered[test_faces_indices]
+test_labels = y_test[test_faces_indices]
 
-    def apply_lda(self, n_components=1):
-        """
-        Apply LDA dimension reduction (Fisherfaces) and 1-NN classification
+# Create a larger PCA model for reconstruction
+if max(reconstruction_steps) > n_eigenfaces:
+    pca_recon = PCA(n_components=max(reconstruction_steps))
+    pca_recon.fit(X_train_centered)
+else:
+    pca_recon = pca
 
-        LDA maximizes the ratio of between-class variance to within-class variance,
-        creating a discriminative feature space for classification as described
-        in Fisher's Linear Discriminant Analysis.
+# Plot reconstructions
+fig, axes = plt.subplots(n_reconstructions, len(reconstruction_steps) + 1,
+                         figsize=(16, 3 * n_reconstructions))
 
-        Parameters:
-        -----------
-        n_components: int
-            Number of LDA components to use
+for i, face_idx in enumerate(range(n_reconstructions)):
+    # Original face
+    orig_face = test_faces[face_idx].reshape(height, width)
+    axes[i, 0].imshow(orig_face, cmap='gray')
+    axes[i, 0].set_title(f"Original ({test_labels[face_idx]})")
+    axes[i, 0].axis('off')
 
-        Returns:
-        --------
-        pred: numpy.ndarray
-            Predicted labels for the test set
-        """
-        print(f"\n{'='*50}\nRunning LDA (Fisherfaces) with {n_components} components...")
+    # Reconstructions with increasing eigenvectors
+    for j, n_components in enumerate(reconstruction_steps):
+        # Project to eigenspace and back
+        reduced = pca_recon.transform(test_faces[face_idx].reshape(1, -1))[:, :n_components]
+        reconstructed = np.dot(reduced, pca_recon.components_[:n_components, :]) + mean_face
+        reconstructed = reconstructed.reshape(height, width)
 
-        # Apply LDA
-        self.lda = LinearDiscriminantAnalysis(n_components=n_components)
-        self.L_train = self.lda.fit_transform(self.X_train_centered, self.y_train)
-        self.L_test = self.lda.transform(self.X_test_centered)
+        # Display reconstruction
+        axes[i, j + 1].imshow(reconstructed, cmap='gray')
+        axes[i, j + 1].set_title(f"{n_components} components")
+        axes[i, j + 1].axis('off')
 
-        # Train and predict with 1-NN
-        self.knn_lda = KNeighborsClassifier(n_neighbors=1).fit(self.L_train, self.y_train)
-        self.pred_lda = self.knn_lda.predict(self.L_test)
+plt.suptitle("Face Reconstruction with Increasing Number of Eigenfaces", fontsize=16)
+plt.tight_layout()
+plt.savefig(f"{results_dir}/face_reconstruction.png", dpi=300)
+plt.close()
 
-        # Calculate probability estimates for ROC curve
-        proba = self.knn_lda.predict_proba(self.L_test)
+# 5.4) Visualize data with t-SNE
+print("\n=== t-SNE Visualization of PCA Features ===")
+# Use first 50 PCA components for t-SNE input
+n_pca_for_tsne = min(50, Z_train.shape[1])
+tsne = TSNE(n_components=2, random_state=42, perplexity=30, learning_rate=200)
+Z_train_tsne = tsne.fit_transform(Z_train[:, :n_pca_for_tsne])
 
-        # Evaluate and store results
-        self._evaluate_method("LDA + 1-NN", self.pred_lda, proba)
+# Create a colormap with distinct colors for all people
+n_classes = len(np.unique(y_train_enc))
+colors = plt.cm.rainbow(np.linspace(0, 1, n_classes))
+cmap = ListedColormap(colors)
 
-        # Visualize fisherface
-        self._visualize_fisherface()
+# Plot t-SNE visualization
+plt.figure(figsize=(14, 12))
+scatter = plt.scatter(Z_train_tsne[:, 0], Z_train_tsne[:, 1],
+                      c=y_train_enc, cmap=cmap,
+                      s=80, alpha=0.7)
 
-        return self.pred_lda
+# Add legend (but limit to first 10 persons to avoid clutter)
+legend_elements = [plt.Line2D([0], [0], marker='o', color='w',
+                              markerfacecolor=colors[i], markersize=10,
+                              label=f'Person {i + 1}')
+                   for i in range(min(10, n_classes))]
+plt.legend(handles=legend_elements, loc='best', title="Sample Persons")
 
-    def apply_centroid(self):
-        """
-        Apply Centroid classifier (calculating class centroids and
-        assigning test samples to the nearest centroid class)
+plt.title('t-SNE Visualization of Face Data (PCA features)', fontsize=16)
+plt.grid(True)
+plt.tight_layout()
+plt.savefig(f"{results_dir}/tsne_pca_visualization.png", dpi=300)
+plt.close()
 
-        Returns:
-        --------
-        pred: numpy.ndarray
-            Predicted labels for the test set
-        """
-        print(f"\n{'='*50}\nRunning Centroid classifier...")
+# 5.5) Train a 1-NN classifier on the PCA projection
+knn_pca = KNeighborsClassifier(n_neighbors=1).fit(Z_train, y_train)
+pred_pca = knn_pca.predict(Z_test)
+pca_accuracy = accuracy_score(y_test, pred_pca)
+print(f"PCA + 1-NN Accuracy: {pca_accuracy:.4f}")
 
-        # Calculate class centroids
-        classes = np.unique(self.y_train)
-        self.centroids = {}
+# 6) LDA Analysis and Visualization for Person Recognition
+print("\n=== LDA Analysis for Person Recognition ===")
+# For multi-class, we can use more components (up to n_classes - 1)
+n_components_lda = min(n_classes - 1, X_train.shape[1])
+lda = LinearDiscriminantAnalysis(n_components=n_components_lda)
+L_train = lda.fit_transform(X_train_centered, y_train_enc)
+L_test = lda.transform(X_test_centered)
 
-        for class_label in classes:
-            self.centroids[class_label] = self.X_train_centered[self.y_train == class_label].mean(axis=0)
+# 6.1) Visualize top Fisherfaces (first few LDA components)
+n_fisherfaces = min(10, n_components_lda)
+fig, axes = plt.subplots(2, 5, figsize=(15, 6))
+for i, ax in enumerate(axes.flat):
+    if i < n_fisherfaces:
+        fisherface = lda.scalings_[:, i].reshape((height, width))
+        ax.imshow(fisherface, cmap="plasma")
+        ax.set_title(f"Fisherface {i + 1}")
+        ax.axis("off")
+    else:
+        ax.axis("off")
+plt.suptitle("LDA: Top 10 Fisherfaces for Person Recognition", fontsize=16)
+plt.tight_layout()
+plt.savefig(f"{results_dir}/fisherfaces.png", dpi=300)
+plt.close()
 
-        # Make predictions using nearest centroid
-        self.pred_centroid = []
-        proba = np.zeros((len(self.y_test), len(classes)))
+# 6.2) Visualize LDA projection with t-SNE (similar to PCA)
+if L_train.shape[1] > 1:
+    # If we have multiple LDA components, use t-SNE for visualization
+    n_lda_for_tsne = min(L_train.shape[1], 20)
+    tsne_lda = TSNE(n_components=2, random_state=42, perplexity=30, learning_rate=200)
+    L_train_tsne = tsne_lda.fit_transform(L_train[:, :n_lda_for_tsne])
 
-        for i, x in enumerate(self.X_test_centered):
-            distances = {}
-            for label, centroid in self.centroids.items():
-                distances[label] = np.linalg.norm(x - centroid)
+    plt.figure(figsize=(14, 12))
+    scatter = plt.scatter(L_train_tsne[:, 0], L_train_tsne[:, 1],
+                          c=y_train_enc, cmap=cmap,
+                          s=80, alpha=0.7)
 
-            # Get the nearest class
-            nearest_class = min(distances, key=distances.get)
-            self.pred_centroid.append(nearest_class)
+    legend_elements = [plt.Line2D([0], [0], marker='o', color='w',
+                                  markerfacecolor=colors[i], markersize=10,
+                                  label=f'Person {i + 1}')
+                       for i in range(min(10, n_classes))]
+    plt.legend(handles=legend_elements, loc='best', title="Sample Persons")
 
-            # Calculate simple probability estimates based on distance
-            total_inv_dist = sum(1/d for d in distances.values())
-            for j, label in enumerate(classes):
-                proba[i, j] = (1/distances[label]) / total_inv_dist
+    plt.title('t-SNE Visualization of Face Data (LDA features)', fontsize=16)
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(f"{results_dir}/tsne_lda_visualization.png", dpi=300)
+    plt.close()
 
-        self.pred_centroid = np.array(self.pred_centroid)
+# 6.3) Train a 1-NN classifier on the LDA projection
+knn_lda = KNeighborsClassifier(n_neighbors=1).fit(L_train, y_train)
+pred_lda = knn_lda.predict(L_test)
+lda_accuracy = accuracy_score(y_test, pred_lda)
+print(f"LDA + 1-NN Accuracy: {lda_accuracy:.4f}")
 
-        # Evaluate and store results
-        self._evaluate_method("Centroid", self.pred_centroid, proba)
+# 7) Centroid Classifier for Person Recognition
+print("\n=== Centroid Classifier Analysis for Person Recognition ===")
 
-        # Visualize mean faces (centroids)
-        self._visualize_centroids()
+# 7.1) Calculate centroids for each person
+centroids = {}
+for person_id in range(n_classes):
+    person_mask = (y_train_enc == person_id)
+    person_samples = X_train_centered[person_mask]
+    centroids[person_id] = np.mean(person_samples, axis=0)
 
-        return self.pred_centroid
+# 7.2) Visualize class mean faces (centroids) for first few persons
+n_persons_to_display = min(5, n_classes)
+fig, axes = plt.subplots(1, n_persons_to_display, figsize=(15, 3))
+for i in range(n_persons_to_display):
+    person_centroid = centroids[i].reshape((height, width))
+    axes[i].imshow(person_centroid, cmap="gray")
+    axes[i].set_title(f"Person {i + 1} Mean Face")
+    axes[i].axis("off")
 
-    def apply_cca(self, n_components=1):
-        """
-        Apply CCA dimension reduction and 1-NN classification
+plt.suptitle("Class Centroids (Mean Faces)", fontsize=16)
+plt.tight_layout()
+plt.savefig(f"{results_dir}/person_centroids.png", dpi=300)
+plt.close()
 
-        CCA finds transformations that maximize the correlation between
-        projected vectors of two datasets (in this case, face images and labels).
 
-        Parameters:
-        -----------
-        n_components: int
-            Number of canonical components to use
+# 7.3) Predict with centroid classifier
+def predict_centroid(X, centroids, le):
+    predictions = []
+    for x in X:
+        # Calculate distance to each centroid
+        distances = {person_id: np.linalg.norm(x - centroid)
+                     for person_id, centroid in centroids.items()}
+        # Find closest centroid
+        closest_id = min(distances, key=distances.get)
+        predictions.append(le.inverse_transform([closest_id])[0])
+    return np.array(predictions)
 
-        Returns:
-        --------
-        pred: numpy.ndarray
-            Predicted labels for the test set
-        """
-        print(f"\n{'='*50}\nRunning CCA with {n_components} components...")
 
-        # Apply CCA with regularization
-        self.cca = CCA(n_components=n_components, scale=True)
-        self.U_train, _ = self.cca.fit_transform(self.X_train_centered, self.y_train_enc)
-        self.U_test, _ = self.cca.transform(self.X_test_centered, self.y_test_enc)
-    
-        # Normalize CCA projections to prevent extreme values
-        # Get min/max for scaling from training data
-        u_min = np.min(self.U_train)
-        u_max = np.max(self.U_train)
-    
-        # Apply scaling to both train and test data to range [-1, 1]
-        if u_max > u_min:  # Avoid division by zero
-            self.U_train_normalized = 2 * (self.U_train - u_min) / (u_max - u_min) - 1
-            self.U_test_normalized = 2 * (self.U_test - u_min) / (u_max - u_min) - 1
-        else:
-            self.U_train_normalized = self.U_train
-            self.U_test_normalized = self.U_test
-    
-        # Use normalized projections for classification
-        self.knn_cca = KNeighborsClassifier(n_neighbors=1).fit(self.U_train_normalized, self.y_train)
-        self.pred_cca = self.knn_cca.predict(self.U_test_normalized)
-    
-        # Calculate probability estimates for ROC curve
-        proba = self.knn_cca.predict_proba(self.U_test_normalized)
-    
-        # Evaluate and store results
-        self._evaluate_method("CCA + 1-NN", self.pred_cca, proba)
-    
-        # Visualize canonical variate
-        self._visualize_canonical_variate()
-    
-        return self.pred_cca
+pred_centroid = predict_centroid(X_test_centered, centroids, le)
+centroid_accuracy = accuracy_score(y_test, pred_centroid)
+print(f"Centroid Classifier Accuracy: {centroid_accuracy:.4f}")
 
-    def _evaluate_method(self, method_name, predictions, probabilities=None):
-        """
-        Evaluate classification performance and store results
+# 8) K-means Clustering Analysis
+print("\n=== K-means Clustering Analysis for Person Recognition ===")
 
-        Parameters:
-        -----------
-        method_name: str
-            Name of the classification method
-        predictions: numpy.ndarray
-            Predicted class labels
-        probabilities: numpy.ndarray
-            Class probabilities (for ROC curves)
-        """
-        # Calculate accuracy
-        accuracy = accuracy_score(self.y_test, predictions)
+# 8.1) Apply k-means to PCA-projected data
+n_clusters = n_classes  # Number of persons
+kmeans_pca = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+cluster_labels_pca = kmeans_pca.fit_predict(Z_train)
 
-        # Calculate confusion matrix
-        cm = confusion_matrix(self.y_test, predictions, labels=self.le.classes_)
+# 8.2) Visualize clusters vs. true person IDs
+plt.figure(figsize=(14, 12))
+plt.subplot(1, 2, 1)
+plt.scatter(Z_train_tsne[:, 0], Z_train_tsne[:, 1],
+            c=cluster_labels_pca, cmap='viridis',
+            s=80, alpha=0.7)
+plt.title('K-means Clusters (PCA features)', fontsize=14)
+plt.grid(True)
 
-        # Generate classification report
-        report = classification_report(self.y_test, predictions, target_names=self.le.classes_)
+plt.subplot(1, 2, 2)
+plt.scatter(Z_train_tsne[:, 0], Z_train_tsne[:, 1],
+            c=y_train_enc, cmap=cmap,
+            s=80, alpha=0.7)
+plt.title('True Person IDs', fontsize=14)
+plt.grid(True)
 
-        # Store results
-        self.results[method_name] = {
-            'accuracy': accuracy,
-            'confusion_matrix': cm,
-            'classification_report': report,
-            'predictions': predictions
-        }
+plt.suptitle('K-means Clustering vs. True Person IDs', fontsize=16)
+plt.tight_layout()
+plt.savefig(f"{results_dir}/kmeans_vs_true_labels.png", dpi=300)
+plt.close()
 
-        if probabilities is not None:
-            self.results[method_name]['probabilities'] = probabilities
+# 8.3) Evaluate clustering quality
+from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
 
-        # Print results
-        print(f"\n=== {method_name} ===")
-        print(f"Accuracy: {accuracy:.4f}")
-        print("Confusion Matrix:")
-        print(cm)
-        print("Classification Report:")
-        print(report)
+ari = adjusted_rand_score(y_train_enc, cluster_labels_pca)
+nmi = normalized_mutual_info_score(y_train_enc, cluster_labels_pca)
 
-        # Analyze misclassified samples
-        self._analyze_errors(predictions, method_name)
+print(f"Clustering Quality - Adjusted Rand Index: {ari:.4f}")
+print(f"Clustering Quality - Normalized Mutual Info: {nmi:.4f}")
 
-        # Plot and save confusion matrix
-        self._plot_confusion_matrix(cm, method_name)
+# 9) Comparative Performance Analysis
+print("\n=== Comparative Performance Analysis ===")
 
-    def _analyze_errors(self, predictions, method_name):
-        """
-        Analyze misclassified samples
+# 9.1) Calculate metrics for all methods
+methods = {
+    "PCA + 1-NN": pred_pca,
+    "LDA + 1-NN": pred_lda,
+    "Centroid": pred_centroid
+}
 
-        Parameters:
-        -----------
-        predictions: numpy.ndarray
-            Predicted class labels
-        method_name: str
-            Name of the classification method
-        """
-        misclassified_indices = np.where(predictions != self.y_test)[0]
-        print(f"\nAnalysis of {len(misclassified_indices)} misclassified samples for {method_name}:")
+accuracies = {name: accuracy_score(y_test, pred) for name, pred in methods.items()}
 
-        # Group by actual and predicted class
-        error_groups = {}
-        for idx in misclassified_indices:
-            true_label = self.y_test[idx]
-            pred_label = predictions[idx]
-            key = f"{true_label} → {pred_label}"
-            if key not in error_groups:
-                error_groups[key] = []
-            error_groups[key].append(idx)
+# 9.2) Generate comparison bar plot
+plt.figure(figsize=(10, 6))
+bars = plt.bar(accuracies.keys(), accuracies.values(),
+               color=['skyblue', 'lightgreen', 'salmon'])
 
-        # Print error statistics
-        for error_type, indices in error_groups.items():
-            print(f"  {error_type}: {len(indices)} samples ({len(indices)/len(misclassified_indices)*100:.1f}%)")
+# Add values on top of bars
+for bar in bars:
+    height = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width() / 2., height + 0.01,
+             f'{height:.2f}', ha='center', va='bottom')
 
-    def _plot_confusion_matrix(self, cm, method_name):
-        """
-        Plot and save confusion matrix
+plt.ylim(0, 1.1)
+plt.ylabel('Accuracy')
+plt.title('Comparison of Face Recognition Methods')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.savefig(f"{results_dir}/method_comparison.png", dpi=300)
+plt.close()
 
-        Parameters:
-        -----------
-        cm: numpy.ndarray
-            Confusion matrix
-        method_name: str
-            Name of the classification method
-        """
-        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=self.le.classes_)
-        fig, ax = plt.subplots(figsize=(6, 5))
-        disp.plot(ax=ax)
-        plt.title(f"{method_name} - Confusion Matrix")
+# 10) Visualization of misclassified examples
+print("\n=== Misclassification Analysis ===")
+
+
+def plot_misclassified_examples(X_test, y_test, y_pred, method_name, le):
+    # Find incorrect predictions
+    incorrect = (y_test != y_pred)
+    n_incorrect = sum(incorrect)
+
+    # Hard-code image dimensions based on the data
+    img_height = 112
+    img_width = 92
+
+    if n_incorrect > 0:
+        # Get indices of misclassified examples
+        incorrect_indices = np.where(incorrect)[0]
+        n_examples = min(5, n_incorrect)
+
+        fig, axes = plt.subplots(n_examples, 3, figsize=(15, 3 * n_examples))
+        if n_examples == 1:
+            axes = axes.reshape(1, 3)
+
+        for i, idx in enumerate(incorrect_indices[:n_examples]):
+            # Original image - fix the reshaping issue
+            img_flat = X_test[idx] + mean_face
+            # Use hardcoded dimensions for reshaping
+            img = img_flat.reshape((img_height, img_width))
+
+            axes[i, 0].imshow(img, cmap='gray')
+
+            # Extract person IDs from labels
+            true_label = y_test[idx]
+            pred_label = y_pred[idx]
+            true_id = int(re.search(r'person_(\d+)', true_label).group(1))
+            pred_id = int(re.search(r'person_(\d+)', pred_label).group(1))
+
+            axes[i, 0].set_title(f"True: Person {true_id}, Predicted: Person {pred_id}")
+            axes[i, 0].axis('off')
+
+            # True person's mean face
+            true_enc = le.transform([true_label])[0]
+            true_centroid_flat = centroids[true_enc]
+            true_person_centroid = true_centroid_flat.reshape((img_height, img_width))
+            axes[i, 1].imshow(true_person_centroid, cmap='gray')
+            axes[i, 1].set_title(f"Mean Face: Person {true_id}")
+            axes[i, 1].axis('off')
+
+            # Wrongly predicted person's mean face
+            pred_enc = le.transform([pred_label])[0]
+            pred_centroid_flat = centroids[pred_enc]
+            pred_person_centroid = pred_centroid_flat.reshape((img_height, img_width))
+            axes[i, 2].imshow(pred_person_centroid, cmap='gray')
+            axes[i, 2].set_title(f"Mean Face: Person {pred_id}")
+            axes[i, 2].axis('off')
+
+        plt.suptitle(f"Misclassified Examples - {method_name}", fontsize=16)
         plt.tight_layout()
-        plt.savefig(f"{RESULTS_DIR}/{method_name.replace(' ', '_')}_confusion.png")
+        plt.savefig(f"{results_dir}/{method_name.lower().replace(' ', '_')}_misclassified.png", dpi=300)
         plt.close()
 
-    def _visualize_eigenfaces(self, n_components):
-        """
-        Visualize PCA eigenfaces (top 10 components)
+        return n_incorrect
+    else:
+        print(f"No misclassifications for {method_name}!")
+        return 0
 
-        Parameters:
-        -----------
-        n_components: int
-            Number of PCA components
-        """
-        # Extract eigenfaces from PCA components
-        n_to_show = min(10, n_components)
-        eigs = self.pca.components_.reshape((n_components, self.img_height, self.img_width))
 
-        # Create and save visualization
-        fig, axes = plt.subplots(2, 5, figsize=(12, 5))
-        for i, ax in enumerate(axes.flat[:n_to_show]):
-            ax.imshow(eigs[i], cmap="gray")
-            ax.set_title(f"Eigenface {i+1}")
-            ax.axis("off")
-        plt.suptitle("PCA: Top 10 Eigenfaces")
-        plt.tight_layout()
-        plt.savefig(f"{RESULTS_DIR}/eigenfaces.png")
-        plt.close()
+# Plot misclassified examples for each method
+for name, pred in methods.items():
+    n_errors = plot_misclassified_examples(X_test, y_test, pred, name, le)
+    print(f"{name}: {n_errors} misclassifications out of {len(y_test)} test samples")
 
-    def _visualize_fisherface(self):
-        """
-        Visualize LDA Fisherface
-        """
-        fisherface = self.lda.scalings_[:, 0].reshape((self.img_height, self.img_width))
-        plt.figure(figsize=(6, 6))
-        plt.imshow(fisherface, cmap="gray")
-        plt.title("LDA Fisherface")
-        plt.axis("off")
-        plt.savefig(f"{RESULTS_DIR}/fisherface.png")
-        plt.close()
+# Create a confusion matrix (may be large with many persons)
+best_method = max(accuracies, key=accuracies.get)
+best_pred = methods[best_method]
 
-    def _visualize_centroids(self):
-        """
-        Visualize class centroids (mean faces)
-        """
-        fig, axes = plt.subplots(1, len(self.centroids), figsize=(4*len(self.centroids), 4))
+print(f"\nBest performing method: {best_method} with accuracy {accuracies[best_method]:.4f}")
 
-        for i, (label, centroid) in enumerate(self.centroids.items()):
-            mean_face = (centroid + self.mean_face).reshape((self.img_height, self.img_width))
-            axes[i].imshow(mean_face, cmap="gray")
-            axes[i].set_title(f"Mean {label.capitalize()} Face")
-            axes[i].axis("off")
+# Print summary
+print("\nAccuracy Summary:")
+for name, acc in accuracies.items():
+    print(f"{name}: {acc:.4f}")
 
-        plt.suptitle("Class Centroids")
-        plt.tight_layout()
-        plt.savefig(f"{RESULTS_DIR}/centroids.png")
-        plt.close()
-
-    def _visualize_canonical_variate(self):
-        """
-        Visualize CCA canonical variate
-        """
-        canon_var = self.cca.x_weights_[:, 0].reshape((self.img_height, self.img_width))
-        plt.figure(figsize=(6, 6))
-        plt.imshow(canon_var, cmap="gray")
-        plt.title("CCA: Canonical Variate")
-        plt.axis("off")
-        plt.savefig(f"{RESULTS_DIR}/canonical_variate.png")
-        plt.close()
-
-    def visualize_data_distribution(self, method=None):
-        """
-        Visualize data distribution using t-SNE or KDE plots for 1D data
-
-        Parameters:
-        -----------
-        method: str
-            Method to use for feature extraction prior to visualization
-            Options: "original", "pca", "lda", "cca" (default: original data)
-        """
-        print(f"\n{'='*50}\nVisualizing data distribution with {method if method else 'original'} features...")
-
-        # Prepare data based on selected method
-        if method == "pca" and hasattr(self, 'Z_train') and hasattr(self, 'Z_test'):
-            X = np.vstack([self.Z_train, self.Z_test])
-            title = "PCA Features"
-            is_1d = False
-        elif method == "lda" and hasattr(self, 'L_train') and hasattr(self, 'L_test'):
-            X = np.vstack([self.L_train, self.L_test])
-            title = "LDA Features"
-            is_1d = X.shape[1] == 1  # Check if LDA produced 1D data
-        elif method == "cca" and hasattr(self, 'U_train_normalized') and hasattr(self, 'U_test_normalized'):
-            X = np.vstack([self.U_train_normalized, self.U_test_normalized])
-            title = "CCA Features (Normalized)"
-            is_1d = X.shape[1] == 1
-        else:
-            # Use original centered data
-            X = np.vstack([self.X_train_centered, self.X_test_centered])
-            title = "Original Features"
-            is_1d = False
-
-        y = np.concatenate([self.y_train, self.y_test])
-        is_train = np.array(['train']*len(self.y_train) + ['test']*len(self.y_test))
-
-        # Create visualization based on data dimensionality
-        if is_1d:
-            print(f"Using KDE visualization for 1D {title}...")
-            self._visualize_1d_data(X, y, is_train, title)
-        else:
-            print(f"Applying t-SNE on {title}...")
-            self._visualize_with_tsne(X, y, is_train, title)
-
-    def _visualize_1d_data(self, X, y, is_train, title):
-        """
-        Create KDE visualization for 1D data with robust error handling
-
-        Parameters:
-        -----------
-        X: numpy.ndarray
-            1D feature data
-        y: numpy.ndarray
-            Class labels
-        is_train: numpy.ndarray
-            Indicates whether samples are from training or test set
-        title: str
-            Title for the visualization
-        """
-        try:
-            # Flatten X if it's a 2D array with 1 column
-            if X.ndim > 1:
-                X = X.flatten()
-
-            # Check for and handle NaN or Inf values
-            if np.isnan(X).any() or np.isinf(X).any():
-                print("Warning: Data contains NaN or Inf values. Removing problematic samples.")
-                valid_idx = ~(np.isnan(X) | np.isinf(X))
-                X = X[valid_idx]
-                y = y[valid_idx]
-                is_train = is_train[valid_idx]
-
-            # Handle extreme outliers by clipping to percentiles
-            lower_bound = np.percentile(X, 1)
-            upper_bound = np.percentile(X, 99)
-            X_clipped = np.clip(X, lower_bound, upper_bound)
-
-            # Create DataFrame for plotting
-            df = pd.DataFrame({
-                'feature': X_clipped,
-                'class': y,
-                'set': is_train
-            })
-
-            # Plot KDE separately for each class and set
-            plt.figure(figsize=(12, 6))
-
-            unique_classes = np.unique(y)
-            for idx, class_name in enumerate(unique_classes):
-                for set_type in ['train', 'test']:
-                    subset = df[(df['class'] == class_name) & (df['set'] == set_type)]
-                    if len(subset) > 0:
-                        sns.kdeplot(
-                            data=subset,
-                            x='feature',
-                            label=f"{class_name} ({set_type})",
-                            fill=True,
-                            alpha=0.3,
-                            linewidth=2,
-                            common_norm=False
-                        )
-
-            plt.title(f"Distribution of {title}")
-            plt.xlabel("Feature Value")
-            plt.ylabel("Density")
-            plt.legend()
-            plt.tight_layout()
-            plt.savefig(f"{RESULTS_DIR}/kde_{title.replace(' ', '_')}.png")
-            plt.close()
-
-        except Exception as e:
-            # Fallback to simple scatter plot if KDE fails
-            warnings.warn(f"KDE plot failed with error: {str(e)}. Using scatter plot instead.")
-            self._fallback_1d_visualization(X, y, is_train, title)
-
-    def _fallback_1d_visualization(self, X, y, is_train, title):
-        """
-        Create a simple scatter plot as fallback for 1D data visualization
-
-        Parameters:
-        -----------
-        X: numpy.ndarray
-            1D feature data
-        y: numpy.ndarray
-            Class labels
-        is_train: numpy.ndarray
-            Indicates whether samples are from training or test set
-        title: str
-            Title for the visualization
-        """
-        try:
-            # Flatten X if needed
-            if X.ndim > 1:
-                X = X.flatten()
-
-            # Remove any invalid values
-            valid_idx = ~(np.isnan(X) | np.isinf(X))
-            X = X[valid_idx]
-            y = y[valid_idx]
-            is_train = is_train[valid_idx]
-
-            # Handle extreme outliers
-            q1, q3 = np.percentile(X, [1, 99])
-            iqr = q3 - q1
-            lower_bound = q1 - 1.5 * iqr
-            upper_bound = q3 + 1.5 * iqr
-            X_clipped = np.clip(X, lower_bound, upper_bound)
-
-            # Create figure
-            plt.figure(figsize=(12, 6))
-
-            # Jitter for y-axis to show distribution
-            jitter = np.random.normal(0, 0.05, size=len(X_clipped))
-
-            # Plot each class and set type
-            unique_classes = np.unique(y)
-            for i, class_name in enumerate(unique_classes):
-                for j, set_type in enumerate(['train', 'test']):
-                    mask = (y == class_name) & (is_train == set_type)
-                    plt.scatter(
-                        X_clipped[mask],
-                        i + jitter[mask],
-                        label=f"{class_name} ({set_type})",
-                        alpha=0.7,
-                        s=20,
-                        marker='o' if set_type == 'train' else 'x'
-                    )
-
-            plt.yticks(range(len(unique_classes)), unique_classes)
-            plt.title(f"Distribution of {title}")
-            plt.xlabel("Feature Value")
-            plt.ylabel("Class")
-            plt.legend()
-            plt.tight_layout()
-            plt.savefig(f"{RESULTS_DIR}/scatter_{title.replace(' ', '_')}.png")
-            plt.close()
-
-        except Exception as e:
-            # If all else fails, report the error and don't produce a visualization
-            warnings.warn(f"All visualization attempts failed for {title}. Error: {str(e)}")
-            print(f"ERROR: Could not visualize {title}. The data may have extreme values or other issues.")
-            print(f"Data statistics: min={np.min(X)}, max={np.max(X)}, mean={np.mean(X)}, std={np.std(X)}")
-
-    def _visualize_with_tsne(self, X, y, is_train, title):
-        """
-        Create t-SNE visualization for multi-dimensional data
-
-        Parameters:
-        -----------
-        X: numpy.ndarray
-            Multi-dimensional feature data
-        y: numpy.ndarray
-            Class labels
-        is_train: numpy.ndarray
-            Indicates whether samples are from training or test set
-        title: str
-            Title for the visualization
-        """
-        try:
-            # Scale the data for better t-SNE results
-            scaler = StandardScaler()
-            X_scaled = scaler.fit_transform(X)
-
-            # Apply t-SNE with careful perplexity setting
-            perplexity = min(30, max(5, len(X_scaled) // 10))
-            tsne = TSNE(
-                n_components=2,
-                random_state=42,
-                perplexity=perplexity,
-                n_iter=1000,
-                init='pca'
-            )
-            X_tsne = tsne.fit_transform(X_scaled)
-
-            # Create DataFrame for easy plotting
-            df = pd.DataFrame({
-                'x': X_tsne[:, 0],
-                'y': X_tsne[:, 1],
-                'class': y,
-                'set': is_train
-            })
-
-            # Plot by class
-            plt.figure(figsize=(12, 10))
-            sns.scatterplot(data=df, x='x', y='y', hue='class', style='set', palette='viridis')
-            plt.title(f"t-SNE Visualization - {title}")
-            plt.tight_layout()
-            plt.savefig(f"{RESULTS_DIR}/tsne_{title.replace(' ', '_')}.png")
-            plt.close()
-
-        except Exception as e:
-            warnings.warn(f"t-SNE visualization failed: {str(e)}")
-            print(f"ERROR: Could not create t-SNE visualization for {title}.")
-
-    def plot_roc_curves(self):
-        """
-        Plot ROC curves for all methods that provide probability estimates
-        """
-        print(f"\n{'='*50}\nPlotting ROC curves...")
-
-        plt.figure(figsize=(10, 8))
-
-        for method_name, result in self.results.items():
-            if 'probabilities' in result:
-                # For binary classification, get probability of the positive class
-                positive_class_idx = np.where(self.le.classes_ == 'male')[0][0]
-                y_score = result['probabilities'][:, positive_class_idx]
-
-                # Calculate ROC curve
-                fpr, tpr, _ = roc_curve(self.y_test == 'male', y_score)
-                roc_auc = auc(fpr, tpr)
-
-                # Plot ROC curve
-                plt.plot(fpr, tpr, lw=2, label=f'{method_name} (AUC = {roc_auc:.3f})')
-
-        # Plot random classifier line
-        plt.plot([0, 1], [0, 1], 'k--', lw=2)
-        plt.xlim([0.0, 1.0])
-        plt.ylim([0.0, 1.05])
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title('ROC Curves Comparison')
-        plt.legend(loc="lower right")
-        plt.savefig(f"{RESULTS_DIR}/roc_comparison.png")
-        plt.close()
-
-    def summarize_results(self):
-        """
-        Summarize classification results for all methods
-        """
-        print(f"\n{'='*50}")
-        print("SUMMARY OF CLASSIFICATION RESULTS")
-        print(f"{'='*50}")
-
-        # Sort methods by accuracy
-        sorted_methods = sorted(
-            [(name, result['accuracy']) for name, result in self.results.items()],
-            key=lambda x: x[1],
-            reverse=True
-        )
-
-        # Print summary table
-        print(f"{'Method':<15} | {'Accuracy':<10}")
-        print("-"*28)
-
-        for method, accuracy in sorted_methods:
-            print(f"{method:<15} | {accuracy:.4f}")
-
-        # Create a summary figure
-        plt.figure(figsize=(10, 6))
-        methods = [m[0] for m in sorted_methods]
-        accuracies = [m[1] for m in sorted_methods]
-
-        bars = plt.bar(methods, accuracies, color='skyblue')
-        plt.ylim(0, 1.0)
-        plt.ylabel('Accuracy')
-        plt.title('Classification Accuracy by Method')
-        plt.xticks(rotation=45, ha='right')
-
-        # Add accuracy values on top of bars
-        for bar in bars:
-            height = bar.get_height()
-            plt.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                    f'{height:.4f}', ha='center', va='bottom')
-
-        plt.tight_layout()
-        plt.savefig(f"{RESULTS_DIR}/accuracy_comparison.png")
-        plt.close()
-
-        # Save results to a JSON file
-        results_summary = {name: {'accuracy': result['accuracy']}
-                          for name, result in self.results.items()}
-
-        with open(f"{RESULTS_DIR}/results_summary.json", 'w') as f:
-            json.dump(results_summary, f, indent=4)
-
-def main():
-    """
-    Main function to run face classification experiments
-    """
-    # Filter out specific scikit-learn warnings
-    warnings.filterwarnings("ignore", category=FutureWarning, module="sklearn")
-    
-    # Initialize face classifier
-    classifier = FaceClassifier(splits_file="splits.json")
-    
-    # Visualize original data distribution
-    classifier.visualize_data_distribution()
-
-    # Apply classification methods
-    classifier.apply_pca(n_components=20, optimize=True)
-    classifier.apply_lda(n_components=1)
-    classifier.apply_centroid()
-    classifier.apply_cca(n_components=1)
-
-    # Visualize data distributions after dimension reduction
-    classifier.visualize_data_distribution(method="pca")
-    classifier.visualize_data_distribution(method="lda")
-    classifier.visualize_data_distribution(method="cca")
-
-    # Plot ROC curves
-    classifier.plot_roc_curves()
-
-    # Summarize results
-    classifier.summarize_results()
-
-    print(f"\nAll results saved to {RESULTS_DIR}/")
-
-if __name__ == "__main__":
-    main()
+print("\nAll visualizations saved to directory:", results_dir)
