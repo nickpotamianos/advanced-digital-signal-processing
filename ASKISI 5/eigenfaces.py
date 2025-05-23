@@ -171,7 +171,7 @@ def visualize_eigenfaces(eigenfaces, k_show=16, save_plots=True):
     cols = k_show // rows
     
     fig, axes = plt.subplots(rows, cols, figsize=(12, 8))
-    fig.suptitle(f'Τα πρώτα {k_show} Eigenfaces (Κύρια Συστατικά)', fontsize=16)
+    fig.suptitle(f'Τα πρώτα {k_show} Eigenfaces (Κύριες Συνιστώσες)', fontsize=16)
     
     for i in range(k_show):
         row, col = i // cols, i % cols
