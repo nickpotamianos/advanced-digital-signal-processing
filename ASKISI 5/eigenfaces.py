@@ -80,7 +80,7 @@ def load_images(paths) -> np.ndarray:
     return np.column_stack(vecs)
 
 # ---------------------------------------------------------------------------
-#  NEW: Educational Visualization Functions
+#  Visualization Functions
 # ---------------------------------------------------------------------------
 
 def get_image_shape():
@@ -97,25 +97,42 @@ def visualize_sample_faces(X_train, splits, save_plots=True):
     
     img_shape = get_image_shape()
     
+    # For debugging
+    print(f"[DEBUG] Image shape: {img_shape}")
+    print(f"[DEBUG] X_train shape: {X_train.shape}")
+    
     fig, axes = plt.subplots(4, 10, figsize=(15, 6))
     fig.suptitle('Δείγματα Προσώπων από την Βάση Δεδομένων', fontsize=16)
     
-    # Show first 4 people, 10 images each (but we only have 8 training images per person)
-    person_idx = 0
+    # Create a dict to map person IDs to sets of image indices
+    person_to_indices = {}
+    for idx, path in enumerate(splits["train"]):
+        # Handle both formats of paths: with "/" or "\\"
+        path_parts = path.replace("\\", "/").split("/")
+        person_id = [part for part in path_parts if part.startswith('s')][0]
+        if person_id not in person_to_indices:
+            person_to_indices[person_id] = []
+        person_to_indices[person_id].append(idx)
+    
+    # Show first 4 people, 8 images each
     for i in range(4):
-        person_paths = [p for p in splits["train"] if f"s{i+1}/" in p][:8]  # First 8 training images
-        for j in range(8):
-            if j < len(person_paths):
-                path = Path(person_paths[j])
-                if not path.is_absolute():
-                    path = ROOT_DIR / path
-                img = imageio.imread(path)
-                axes[i, j].imshow(img, cmap='gray')
-                axes[i, j].set_title(f'Person {i+1}', fontsize=8)
-            axes[i, j].axis('off')
-        # Fill remaining slots with empty plots
-        for j in range(8, 10):
-            axes[i, j].axis('off')
+        person_id = f"s{i+1}"
+        if person_id in person_to_indices:
+            indices = person_to_indices[person_id][:8]  # Get first 8 images for this person
+            
+            for j in range(8):
+                if j < len(indices):
+                    # Get image data from X_train
+                    img_data = X_train[:, indices[j]].reshape(img_shape)
+                    
+                    # Display the image
+                    axes[i, j].imshow(img_data, cmap='gray')
+                    axes[i, j].set_title(f'Person {i+1}', fontsize=8)
+                axes[i, j].axis('off')
+                
+            # Fill remaining slots with empty plots
+            for j in range(8, 10):
+                axes[i, j].axis('off')
     
     plt.tight_layout()
     if save_plots:
@@ -441,7 +458,7 @@ def visualize_nearest_neighbor_examples(W_train, W_test, labels_train, labels_te
     plt.show()
 
 # ---------------------------------------------------------------------------
-#  PCA ↦ Eigenfaces (UNCHANGED)
+#  PCA ↦ Eigenfaces 
 # ---------------------------------------------------------------------------
 
 def pca_eigenfaces(X: np.ndarray, k: int):
@@ -469,7 +486,7 @@ def nearest_neighbor(W_train: np.ndarray, labels_train: np.ndarray, W_test: np.n
     return preds
 
 # ---------------------------------------------------------------------------
-#  Μετρικές (UNCHANGED)
+#  Μετρικές
 # ---------------------------------------------------------------------------
 
 def metrics(y_true, y_pred, classes):
@@ -485,7 +502,7 @@ def metrics(y_true, y_pred, classes):
     return cm, report, np.array(specificity)
 
 # ---------------------------------------------------------------------------
-#  Εκτέλεση μίας φοράς (ENHANCED)
+#  Εκτέλεση μίας φοράς
 # ---------------------------------------------------------------------------
 
 def run_once(X_train, X_test, labels_train, labels_test, classes, k):
@@ -536,7 +553,7 @@ def run_once(X_train, X_test, labels_train, labels_test, classes, k):
     return acc, f1.mean(), spec.mean(), report
 
 # ---------------------------------------------------------------------------
-#  main (ENHANCED)
+#  main
 # ---------------------------------------------------------------------------
 
 def main():
