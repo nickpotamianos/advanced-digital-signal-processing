@@ -557,10 +557,7 @@ def run_once(X_train, X_test, labels_train, labels_test, classes, k):
 # ---------------------------------------------------------------------------
 
 def main():
-    print("="*70)
-    print("🎭 EIGENFACES - Enhanced Educational Version 🎭")
-    print("="*70)
-    
+      
     if not DATA_DIR.exists():
         print(f"[ERROR] Δεν βρέθηκε φάκελος faces_dataset στο {DATA_DIR}")
         sys.exit(1)
