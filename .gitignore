@@ -24,10 +24,17 @@ ASKISI 3/ADSP_3-KSVD/[PYTHON] plots epochs=20 - T0=5 - K=128/Ytrain.npz
 # Ignore PDF files
 *.pdf
 
+# Ignore Word documents
+*.docx
+
 # Ignore MATLAB temporary files
 *.asv
 *.m~
 *.mex*
+
+# Ignore face and non-face folders
+ASKISI 6/faces/
+ASKISI 6/non_faces/
 
 # Ignore common OS files
 .DS_Store
